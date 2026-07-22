@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Navbar from './components/Navbar';
-import AuthModal from './components/AuthModal';
+import AuthPage from './components/AuthPage';
 import TaskModal from './components/TaskModal';
 import LogModal from './components/LogModal';
 import {
@@ -19,7 +19,7 @@ import {
   Layers,
   Server,
   Terminal,
-  ArrowUpRight
+  LogOut
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -29,19 +29,20 @@ export default function App() {
   const [token, setToken] = useState('');
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDashboardVisible, setIsDashboardVisible] = useState(false);
 
-  // Load saved user & token
+  // Load saved token & user profile
   useEffect(() => {
     const savedToken = localStorage.getItem('task_platform_token');
     const savedUser = localStorage.getItem('task_platform_user');
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
+      setIsDashboardVisible(true);
     }
   }, []);
 
@@ -69,12 +70,21 @@ export default function App() {
     }
   }, [token, fetchTasks]);
 
+  const handleAuthSuccess = (userData) => {
+    setUser(userData);
+    setToken(userData.token);
+    setIsDashboardVisible(true);
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem('task_platform_token');
-    localStorage.removeItem('task_platform_user');
-    setToken('');
-    setUser(null);
-    setTasks([]);
+    setIsDashboardVisible(false);
+    setTimeout(() => {
+      localStorage.removeItem('task_platform_token');
+      localStorage.removeItem('task_platform_user');
+      setToken('');
+      setUser(null);
+      setTasks([]);
+    }, 300);
   };
 
   const handleDeleteTask = async (taskId, e) => {
@@ -104,11 +114,16 @@ export default function App() {
     return matchesFilter && matchesSearch;
   });
 
-  return (
-    <div className="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
-      <Navbar user={user} onOpenAuth={() => setIsAuthOpen(true)} onLogout={handleLogout} />
+  // If user is not authenticated, show the Dedicated Auth Portal Page
+  if (!token || !user) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} apiUrl={API_URL} />;
+  }
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  return (
+    <div className={`min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white transition-all duration-500 ${isDashboardVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+      <Navbar user={user} onLogout={handleLogout} />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
         
         {/* Banner Hero */}
         <div className="relative rounded-3xl glass-panel p-6 sm:p-10 overflow-hidden border border-slate-800/80 shadow-2xl">
@@ -126,28 +141,18 @@ export default function App() {
               </h1>
               
               <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                Execute text operations asynchronously. Tasks are queued in Redis, processed by Python worker pods, and synchronized across clusters using GitOps & Argo CD.
+                Welcome back, <span className="text-indigo-400 font-bold">{user.name || user.email}</span>! Submit computational tasks asynchronously. Tasks are queued in Redis, executed by Python background workers, and synced via GitOps Argo CD.
               </p>
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              {user ? (
-                <button
-                  onClick={() => setIsTaskOpen(true)}
-                  className="glow-btn flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-extrabold text-white shadow-xl transition-all hover:scale-105"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Create New Task</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => setIsAuthOpen(true)}
-                  className="glow-btn flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-extrabold text-white shadow-xl transition-all hover:scale-105"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  <span>Sign In to Get Started</span>
-                </button>
-              )}
+              <button
+                onClick={() => setIsTaskOpen(true)}
+                className="glow-btn flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-extrabold text-white shadow-xl transition-all hover:scale-105"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Create New Task</span>
+              </button>
             </div>
           </div>
         </div>
@@ -246,23 +251,7 @@ export default function App() {
           </div>
 
           {/* Task List Table */}
-          {!user ? (
-            <div className="glass-panel rounded-3xl p-12 text-center border border-slate-800/80 space-y-4">
-              <Server className="h-14 w-14 text-indigo-400 mx-auto opacity-80" />
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-white">Authentication Required</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Sign in or create an account to create tasks and view real-time Python worker execution logs.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsAuthOpen(true)}
-                className="glow-btn px-6 py-2.5 rounded-xl text-xs font-extrabold text-white shadow-lg transition"
-              >
-                Sign In Now
-              </button>
-            </div>
-          ) : filteredTasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="glass-panel rounded-3xl p-12 text-center border border-slate-800/80 space-y-3">
               <FileText className="h-12 w-12 text-slate-600 mx-auto" />
               <p className="text-xs text-slate-400 font-medium">No tasks found in the queue matching your filter.</p>
@@ -370,17 +359,7 @@ export default function App() {
         </div>
       </main>
 
-      {/* Modals */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onAuthSuccess={(userData) => {
-          setUser(userData);
-          setToken(userData.token);
-        }}
-        apiUrl={API_URL}
-      />
-
+      {/* Task Creation & Log Viewer Modals */}
       <TaskModal
         isOpen={isTaskOpen}
         onClose={() => setIsTaskOpen(false)}
