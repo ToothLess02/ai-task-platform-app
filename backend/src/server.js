@@ -19,10 +19,11 @@ app.use(helmet());
 const corsOrigin = process.env.CORS_ORIGIN || '*';
 app.use(cors({ origin: corsOrigin, credentials: true }));
 
-// Security Middleware: Rate Limiting (100 requests per 15 minutes)
+// Security Middleware: Rate Limiting
+// Configured with high threshold (2000 req/15min) to support real-time polling without blocking local dev
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: parseInt(process.env.RATE_LIMIT_MAX || '2000', 10),
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
