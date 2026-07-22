@@ -1,55 +1,87 @@
-@tailwindcss base;
-@tailwindcss components;
-@tailwindcss utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  color-scheme: dark;
+}
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: #030712;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.12) 0px, transparent 50%);
   background-attachment: fixed;
 }
 
-code, pre, .font-mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
+  background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(30, 41, 59, 0.45);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glow-button {
-  box-shadow: 0 0 20px -3px rgba(99, 102, 241, 0.4);
+.glass-card:hover {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+.glow-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.5);
   transition: all 0.2s ease-in-out;
 }
 
-.glow-button:hover {
-  box-shadow: 0 0 25px 0px rgba(99, 102, 241, 0.6);
+.glow-btn:hover {
+  box-shadow: 0 6px 25px 0px rgba(139, 92, 246, 0.7);
   transform: translateY(-1px);
+}
+
+.glow-border {
+  position: relative;
+}
+
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-border:hover::after {
+  opacity: 1;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
+
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #030712;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
-  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.4);
+  border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  background: rgba(139, 92, 246, 0.8);
 }

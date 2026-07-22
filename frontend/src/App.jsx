@@ -17,7 +17,9 @@ import {
   Zap,
   Activity,
   Layers,
-  Server
+  Server,
+  Terminal,
+  ArrowUpRight
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -33,7 +35,7 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load user token from localStorage
+  // Load saved user & token
   useEffect(() => {
     const savedToken = localStorage.getItem('task_platform_token');
     const savedUser = localStorage.getItem('task_platform_user');
@@ -55,7 +57,7 @@ export default function App() {
     }
   }, [token]);
 
-  // Initial fetch and auto-polling every 3 seconds for async status updates
+  // Initial fetch and auto-polling every 3s
   useEffect(() => {
     if (token) {
       setLoading(true);
@@ -103,24 +105,28 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
       <Navbar user={user} onOpenAuth={() => setIsAuthOpen(true)} onLogout={handleLogout} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
         {/* Banner Hero */}
-        <div className="relative rounded-2xl glass-panel p-6 sm:p-8 overflow-hidden border border-slate-800">
-          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative rounded-3xl glass-panel p-6 sm:p-10 overflow-hidden border border-slate-800/80 shadow-2xl">
+          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-80 h-80 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+          
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold border border-indigo-500/20">
-                <Zap className="h-3.5 w-3.5" />
-                <span>Asynchronous Redis & Python Worker Processing</span>
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/30">
+                <Zap className="h-4 w-4 text-indigo-400" />
+                <span>Asynchronous Redis & Python Worker Engine</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 AI Task Processing Pipeline
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-                Submit computational tasks asynchronously. Requests are queued in Redis, processed by Python worker pods, and synced seamlessly via Argo CD GitOps architecture.
+              
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                Execute text operations asynchronously. Tasks are queued in Redis, processed by Python worker pods, and synchronized across clusters using GitOps & Argo CD.
               </p>
             </div>
 
@@ -128,18 +134,18 @@ export default function App() {
               {user ? (
                 <button
                   onClick={() => setIsTaskOpen(true)}
-                  className="glow-button flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 transition-all shadow-lg"
+                  className="glow-btn flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-extrabold text-white shadow-xl transition-all hover:scale-105"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Create New AI Task</span>
+                  <span>Create New Task</span>
                 </button>
               ) : (
                 <button
                   onClick={() => setIsAuthOpen(true)}
-                  className="glow-button flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-all"
+                  className="glow-btn flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-extrabold text-white shadow-xl transition-all hover:scale-105"
                 >
                   <Sparkles className="h-4 w-4" />
-                  <span>Sign In to Start</span>
+                  <span>Sign In to Get Started</span>
                 </button>
               )}
             </div>
@@ -148,77 +154,79 @@ export default function App() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-          <div className="glass-card rounded-xl p-4 border border-slate-800/80">
+          <div className="glass-card rounded-2xl p-5 border border-slate-800/80">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-medium">Total Tasks</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Total Tasks</span>
               <Layers className="h-4 w-4 text-indigo-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{totalTasks}</p>
+            <p className="text-3xl font-extrabold text-white tracking-tight">{totalTasks}</p>
           </div>
 
-          <div className="glass-card rounded-xl p-4 border border-slate-800/80">
+          <div className="glass-card rounded-2xl p-5 border border-slate-800/80">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-medium">Pending Queue</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Pending</span>
               <Clock className="h-4 w-4 text-amber-400" />
             </div>
-            <p className="text-2xl font-bold text-amber-400">{pendingCount}</p>
+            <p className="text-3xl font-extrabold text-amber-400 tracking-tight">{pendingCount}</p>
           </div>
 
-          <div className="glass-card rounded-xl p-4 border border-slate-800/80">
+          <div className="glass-card rounded-2xl p-5 border border-slate-800/80">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-medium">Running Workers</span>
-              <Activity className="h-4 w-4 text-cyan-400" />
+              <span className="text-xs font-bold uppercase tracking-wider">Running</span>
+              <Activity className="h-4 w-4 text-cyan-400 animate-pulse" />
             </div>
-            <p className="text-2xl font-bold text-cyan-400">{runningCount}</p>
+            <p className="text-3xl font-extrabold text-cyan-400 tracking-tight">{runningCount}</p>
           </div>
 
-          <div className="glass-card rounded-xl p-4 border border-slate-800/80">
+          <div className="glass-card rounded-2xl p-5 border border-slate-800/80">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-medium">Success</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Success</span>
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-emerald-400">{successCount}</p>
+            <p className="text-3xl font-extrabold text-emerald-400 tracking-tight">{successCount}</p>
           </div>
 
-          <div className="glass-card rounded-xl p-4 border border-slate-800/80 col-span-2 sm:col-span-1">
+          <div className="glass-card rounded-2xl p-5 border border-slate-800/80 col-span-2 sm:col-span-1">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-medium">Failed</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Failed</span>
               <AlertTriangle className="h-4 w-4 text-red-400" />
             </div>
-            <p className="text-2xl font-bold text-red-400">{failedCount}</p>
+            <p className="text-3xl font-extrabold text-red-400 tracking-tight">{failedCount}</p>
           </div>
         </div>
 
         {/* Task Management Table / Section */}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-white">Task Executions</h2>
-              <span className="text-xs text-slate-500 font-mono">({filteredTasks.length} items)</span>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-extrabold text-white tracking-tight">Task Queue Monitor</h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-900 text-indigo-400 border border-slate-800">
+                {filteredTasks.length} items
+              </span>
             </div>
 
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+                <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-500" />
                 <input
                   type="text"
-                  placeholder="Filter by title/op..."
+                  placeholder="Search task title/op..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
                 />
               </div>
 
-              {/* Status Filter Buttons */}
-              <div className="flex bg-slate-900/80 p-1 rounded-lg border border-slate-800 text-xs">
+              {/* Status Filter Tabs */}
+              <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
                 {['ALL', 'Pending', 'Running', 'Success', 'Failed'].map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                       statusFilter === status
-                        ? 'bg-indigo-600 text-white shadow'
+                        ? 'bg-indigo-600 text-white shadow-md'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -229,54 +237,54 @@ export default function App() {
 
               <button
                 onClick={fetchTasks}
-                className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition"
-                title="Refresh Tasks"
+                className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition"
+                title="Refresh Queue"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
+                <RefreshCw className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           {/* Task List Table */}
           {!user ? (
-            <div className="glass-panel rounded-2xl p-12 text-center border border-slate-800/80 space-y-4">
-              <Server className="h-12 w-12 text-indigo-400 mx-auto opacity-80" />
+            <div className="glass-panel rounded-3xl p-12 text-center border border-slate-800/80 space-y-4">
+              <Server className="h-14 w-14 text-indigo-400 mx-auto opacity-80" />
               <div className="space-y-1">
-                <h3 className="text-base font-semibold text-white">Authentication Required</h3>
+                <h3 className="text-lg font-bold text-white">Authentication Required</h3>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Sign in or register to submit AI processing tasks and view real-time execution logs.
+                  Sign in or create an account to create tasks and view real-time Python worker execution logs.
                 </p>
               </div>
               <button
                 onClick={() => setIsAuthOpen(true)}
-                className="glow-button px-5 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition"
+                className="glow-btn px-6 py-2.5 rounded-xl text-xs font-extrabold text-white shadow-lg transition"
               >
                 Sign In Now
               </button>
             </div>
           ) : filteredTasks.length === 0 ? (
-            <div className="glass-panel rounded-2xl p-12 text-center border border-slate-800/80 space-y-3">
-              <FileText className="h-10 w-10 text-slate-600 mx-auto" />
-              <p className="text-xs text-slate-400">No tasks found matching your filter.</p>
+            <div className="glass-panel rounded-3xl p-12 text-center border border-slate-800/80 space-y-3">
+              <FileText className="h-12 w-12 text-slate-600 mx-auto" />
+              <p className="text-xs text-slate-400 font-medium">No tasks found in the queue matching your filter.</p>
               <button
                 onClick={() => setIsTaskOpen(true)}
-                className="text-xs text-indigo-400 hover:underline font-semibold"
+                className="text-xs text-indigo-400 hover:text-indigo-300 font-bold hover:underline"
               >
-                Create your first task →
+                Create a new AI task now →
               </button>
             </div>
           ) : (
-            <div className="glass-panel rounded-2xl overflow-hidden border border-slate-800/80">
+            <div className="glass-panel rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900/90 text-slate-400 font-semibold border-b border-slate-800">
+                  <thead className="bg-slate-900/90 text-slate-400 font-bold border-b border-slate-800 uppercase tracking-wider text-[11px]">
                     <tr>
-                      <th className="py-3.5 px-4">Task Details</th>
-                      <th className="py-3.5 px-4">Operation</th>
-                      <th className="py-3.5 px-4">Status</th>
-                      <th className="py-3.5 px-4">Result Preview</th>
-                      <th className="py-3.5 px-4">Created At</th>
-                      <th className="py-3.5 px-4 text-right">Actions</th>
+                      <th className="py-4 px-5">Task Details</th>
+                      <th className="py-4 px-5">Operation</th>
+                      <th className="py-4 px-5">Status</th>
+                      <th className="py-4 px-5">Result Preview</th>
+                      <th className="py-4 px-5">Created At</th>
+                      <th className="py-4 px-5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60">
@@ -284,70 +292,71 @@ export default function App() {
                       <tr
                         key={task._id}
                         onClick={() => setSelectedTask(task)}
-                        className="hover:bg-slate-800/40 cursor-pointer transition"
+                        className="hover:bg-slate-800/50 cursor-pointer transition"
                       >
-                        <td className="py-3.5 px-4 font-medium text-white">
-                          <div className="font-semibold text-slate-100">{task.title}</div>
-                          <div className="text-[10px] text-slate-500 font-mono truncate max-w-xs">
+                        <td className="py-4 px-5 font-medium text-white">
+                          <div className="font-bold text-slate-100 text-xs sm:text-sm">{task.title}</div>
+                          <div className="text-[11px] text-slate-500 font-mono truncate max-w-xs mt-0.5">
                             Payload: {task.inputText}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <span className="px-2.5 py-1 rounded-md bg-slate-800 text-indigo-300 font-mono text-[11px] border border-slate-700/50">
+                        <td className="py-4 px-5">
+                          <span className="px-3 py-1 rounded-xl bg-slate-900 text-indigo-300 font-mono text-[11px] font-bold border border-slate-800">
                             {task.operationType}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-4 px-5">
                           {task.status === 'Success' && (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              <CheckCircle2 className="h-3 w-3" /> Success
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                              <CheckCircle2 className="h-3.5 w-3.5" /> Success
                             </span>
                           )}
                           {task.status === 'Running' && (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 animate-pulse">
-                              <Clock className="h-3 w-3 animate-spin" /> Running
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse">
+                              <Clock className="h-3.5 w-3.5 animate-spin" /> Running
                             </span>
                           )}
                           {task.status === 'Pending' && (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                              <Clock className="h-3 w-3" /> Pending
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                              <Clock className="h-3.5 w-3.5" /> Pending
                             </span>
                           )}
                           {task.status === 'Failed' && (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                              <AlertTriangle className="h-3 w-3" /> Failed
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/30">
+                              <AlertTriangle className="h-3.5 w-3.5" /> Failed
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-4 font-mono text-slate-300">
+                        <td className="py-4 px-5 font-mono text-slate-300">
                           {task.result ? (
-                            <span className="text-emerald-400 truncate max-w-xs block">
+                            <span className="text-emerald-400 font-semibold truncate max-w-xs block">
                               {task.result}
                             </span>
                           ) : (
-                            <span className="text-slate-600 italic">Processing...</span>
+                            <span className="text-slate-600 italic text-[11px]">Processing...</span>
                           )}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                        <td className="py-4 px-5 text-slate-400 font-mono text-[11px]">
                           {new Date(task.createdAt).toLocaleString()}
                         </td>
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="py-4 px-5 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedTask(task);
                               }}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition"
                             >
-                              Logs
+                              <Terminal className="h-3.5 w-3.5 text-indigo-400" />
+                              <span>Logs</span>
                             </button>
                             <button
                               onClick={(e) => handleDeleteTask(task._id, e)}
-                              className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                              className="p-1.5 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition"
                               title="Delete Task"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </td>
