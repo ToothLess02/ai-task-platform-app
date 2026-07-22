@@ -1,0 +1,4 @@
+redis==5.0.7
+pymongo==4.8.0
+bson==0.5.10
+python-dotenv==1.0.1
